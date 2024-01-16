@@ -130,7 +130,7 @@ MainWindow::MainWindow(QWidget *parent) :
     qrnumber=getRand(1,1);
     salt = "444";
     // Veriyi AES ile şifrele
-    QString encryptedQrNumber = encodeAndHash(qrnumber, salt);
+    QString encryptedQrNumber = encodeAndHash(QString::number(qrnumber), salt);
     qDebug() << "Şifrelenmiş QR Numarası: " << encryptedQrNumber;
 
     qw=new QLabel(this);
