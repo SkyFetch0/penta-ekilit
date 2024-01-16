@@ -46,14 +46,14 @@ QString encodeAndHash(const QString &data, const QString &salt) {
     // QR kod verisini QByteArray'e dönüştür
     QByteArray byteArray = data.toUtf8();
 
-    // MD5 ile hash işlemi
-    QByteArray hashedData = QCryptographicHash::hash(byteArray, QCryptographicHash::Md5);
-
     // Salt'ı ekleyerek şifreleme
-    QByteArray saltedData = hashedData + salt.toUtf8();
+    QByteArray saltedData = byteArray + salt.toUtf8();
+
+    // MD5 ile hash işlemi
+    QByteArray hashedData = QCryptographicHash::hash(saltedData, QCryptographicHash::Md5);
 
     // Sonucu QString olarak döndür
-    return QString(saltedData.toBase64());
+    return QString(hashedData.toBase64());
 }
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)//    ui(new Ui::MainWindow)
