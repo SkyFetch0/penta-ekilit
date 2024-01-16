@@ -28,7 +28,6 @@
 #include<QProcess>
 #include <QByteArray>
 #include <QCryptographicHash>
-#include <QAESEncryption.h>
 
 void MainWindow::formGoster()
 {
@@ -43,15 +42,18 @@ void MainWindow::formGoster()
 
    }
 
-QString encryptAES(const QString &data, const QString &key, const QString &iv) {
-    QByteArray dataBytes = data.toUtf8();
-    QByteArray keyBytes = QCryptographicHash::hash(key.toUtf8(), QCryptographicHash::Sha256);
-    QByteArray ivBytes = QCryptographicHash::hash(iv.toUtf8(), QCryptographicHash::Md5);
+QString encodeAndHash(const QString &data, const QString &salt) {
+    // QR kod verisini QByteArray'e dönüştür
+    QByteArray byteArray = data.toUtf8();
 
-    QAESEncryption encryption(QAESEncryption::AES_256, QAESEncryption::CBC);
-    QByteArray encryptedBytes = encryption.encode(dataBytes, keyBytes, ivBytes);
+    // MD5 ile hash işlemi
+    QByteArray hashedData = QCryptographicHash::hash(byteArray, QCryptographicHash::Md5);
 
-    return QString(encryptedBytes.toBase64());
+    // Salt'ı ekleyerek şifreleme
+    QByteArray saltedData = hashedData + salt.toUtf8();
+
+    // Sonucu QString olarak döndür
+    return QString(saltedData.toBase64());
 }
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)//    ui(new Ui::MainWindow)
@@ -126,19 +128,16 @@ MainWindow::MainWindow(QWidget *parent) :
 /******************qr-code***********************************/
 
     qrnumber=getRand(1,1);
-    QString originalText = qrnumber;
-    QString key = "PentaDev";
-    QString iv = "HELLOPENTAIV456";
-
+    salt = "444";
     // Veriyi AES ile şifrele
-    QString encryptedQrNumber = encryptAES(originalText, key, iv);
+    QString encryptedQrNumber = encodeAndHash(qrnumber, salt);
     qDebug() << "Şifrelenmiş QR Numarası: " << encryptedQrNumber;
 
     qw=new QLabel(this);
    // qw->setQRData(QString::number(qrnumber));
     qw->resize(boyut*2,boyut*2);
     qw->move(boyut/2,screenSize.height()-boyut*3);
-    updateQrCode(QString::number(encryptedQrNumber),boyut*2,boyut*2);
+    updateQrCode(encryptedQrNumber,boyut*2,boyut*2);
    // qw->hide();
    // qDebug()<<qrnumber;
 /****************************************************/
