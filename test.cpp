@@ -49,11 +49,11 @@ QString encodeAndHash(const QString &data, const QString &salt) {
     // Salt'ı ekleyerek şifreleme
     QByteArray saltedData = byteArray + salt.toUtf8();
 
-    // MD5 ile hash işlemi
-    QByteArray hashedData = QCryptographicHash::hash(saltedData, QCryptographicHash::Md5);
+    // Base64 kodlama
+    QString base64Data = saltedData.toBase64();
 
     // Sonucu QString olarak döndür
-    return QString(hashedData.toBase64());
+    return base64Data;
 }
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)//    ui(new Ui::MainWindow)
@@ -128,7 +128,7 @@ MainWindow::MainWindow(QWidget *parent) :
 /******************qr-code***********************************/
 
     qrnumber=getRand(1,1);
-    salt = "444";
+    QString salt = "444";
     // Veriyi AES ile şifrele
     QString encryptedQrNumber = encodeAndHash(QString::number(qrnumber), salt);
     qDebug() << "Şifrelenmiş QR Numarası: " << encryptedQrNumber;
