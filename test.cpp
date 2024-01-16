@@ -28,6 +28,8 @@
 #include<QProcess>
 #include <QByteArray>
 #include <QCryptographicHash>
+#include <QAESEncryption.h>
+
 void MainWindow::formGoster()
 {
     /// if(this->isActiveWindow()) return;
@@ -40,6 +42,17 @@ void MainWindow::formGoster()
         passwd->setFocus();
 
    }
+
+QString encryptAES(const QString &data, const QString &key, const QString &iv) {
+    QByteArray dataBytes = data.toUtf8();
+    QByteArray keyBytes = QCryptographicHash::hash(key.toUtf8(), QCryptographicHash::Sha256);
+    QByteArray ivBytes = QCryptographicHash::hash(iv.toUtf8(), QCryptographicHash::Md5);
+
+    QAESEncryption encryption(QAESEncryption::AES_256, QAESEncryption::CBC);
+    QByteArray encryptedBytes = encryption.encode(dataBytes, keyBytes, ivBytes);
+
+    return QString(encryptedBytes.toBase64());
+}
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)//    ui(new Ui::MainWindow)
 {
@@ -113,10 +126,13 @@ MainWindow::MainWindow(QWidget *parent) :
 /******************qr-code***********************************/
 
     qrnumber=getRand(1,1);
-    QString salt = "PentaDev";  // Kullanıcıya özel bir "salt" değeri
-    QString encryptedQrNumber = encodeAndHash(QString::number(qrnumber), salt);
+    QString originalText = qrnumber;
+    QString key = "PentaDev";
+    QString iv = "HELLOPENTAIV456";
+
+    // Veriyi AES ile şifrele
+    QString encryptedQrNumber = encryptAES(originalText, key, iv);
     qDebug() << "Şifrelenmiş QR Numarası: " << encryptedQrNumber;
-    qDebug() << " QR Numarası: " << qrnumber;
 
     qw=new QLabel(this);
    // qw->setQRData(QString::number(qrnumber));
@@ -293,20 +309,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
-QString encodeAndHash(const QString &data, const QString &salt) {
-    // QR kod verisini QByteArray'e dönüştür
-    QByteArray byteArray = data.toUtf8();
 
-    // Base64 kodlama
-    QString base64Data = byteArray.toBase64();
-
-    // Salt'ı ekleyerek şifreleme
-    QByteArray saltedData = base64Data.toUtf8() + salt.toUtf8();
-    QByteArray hashedData = QCryptographicHash::hash(saltedData, QCryptographicHash::Sha256);
-
-    // Sonucu QString olarak döndür
-    return QString(hashedData.toBase64());
-}
 
 int MainWindow::getRand(int min, int max){
     unsigned int ms = static_cast<unsigned>(QDateTime::currentMSecsSinceEpoch());
