@@ -28,6 +28,11 @@
 #include<QProcess>
 #include <QByteArray>
 #include <QCryptographicHash>
+#include <QUiLoader>
+#include <QVBoxLayout>
+
+
+
 
 void MainWindow::formGoster()
 {
@@ -55,6 +60,66 @@ QString encodeAndHash(const QString &data, const QString &salt) {
     // Sonucu QString olarak döndür
     return base64Data;
 }
+
+
+
+
+void MainWindow::loadUiFile()
+{
+    // Create a widget to hold the loaded UI elements
+    QWidget *uiWidget = nullptr;
+
+    // Load the UI file
+    QFile file(":/path/to/your/ui/file.ui");
+    file.open(QFile::ReadOnly);
+    QUiLoader loader;
+    uiWidget = loader.load(&file);
+    file.close();
+
+    if (!uiWidget) {
+        qDebug() << "Failed to load UI file.";
+        return;
+    }
+
+    // Access UI elements if needed
+    QLabel *label = uiWidget->findChild<QLabel*>("yourLabelName");
+    if (label) {
+        label->setText("Hello, UI!");
+    }
+
+    // Add the UI widget to your existing layout or set it as the central widget
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    mainLayout->addWidget(uiWidget);
+    setLayout(mainLayout);
+}
+
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+{
+    // Pencerenin başlatılması ve özelliklerinin belirlenmesi
+
+    // Örneğin, UI dosyasını yükleme (Qt Designer ile oluşturulmuş bir arayüz varsa)
+     ui->setupUi(this);
+
+    // Pencere başlığını belirleme
+    setWindowTitle("My Main Window");
+
+    // Pencere boyutunu ayarlama
+    resize(800, 600);
+
+    // Pencere konumunu ayarlama
+    move(100, 100);
+
+    // Pencereyi gösterme
+    show();
+
+    // Diğer başlatma işlemlerini ekleyebilirsiniz.
+}
+
+
+
+
+
+/*
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)//    ui(new Ui::MainWindow)
 {
@@ -291,6 +356,7 @@ MainWindow::MainWindow(QWidget *parent) :
 */
                    /******************************************************/
 }
+*/
 
 bool MainWindow::eventFilter(QObject *object, QEvent *event)
 {
